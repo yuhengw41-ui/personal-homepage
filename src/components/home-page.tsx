@@ -1,8 +1,14 @@
 'use client';
 
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from 'react';
 import {
   motion,
+  useMotionTemplate,
   useMotionValue,
   useScroll,
   useSpring,
@@ -19,15 +25,6 @@ const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   visible: { opacity: 1, y: 0 },
 };
-
-const atlasMarks = [
-  { left: '11%', top: '18%', delay: '-3s', length: '94px', rotate: '18deg' },
-  { left: '28%', top: '72%', delay: '-11s', length: '132px', rotate: '-12deg' },
-  { left: '48%', top: '32%', delay: '-7s', length: '86px', rotate: '42deg' },
-  { left: '66%', top: '80%', delay: '-16s', length: '116px', rotate: '-28deg' },
-  { left: '84%', top: '22%', delay: '-9s', length: '104px', rotate: '9deg' },
-  { left: '74%', top: '56%', delay: '-19s', length: '148px', rotate: '61deg' },
-];
 
 const sectionCopy = {
   manifesto: { en: 'Manifesto', zh: '宣言' },
@@ -54,44 +51,101 @@ const sectionCopy = {
   contact: { en: 'Contact', zh: '联系' },
 };
 
-function QuietAtlasEnvironment() {
-  const lensX = useMotionValue(-280);
-  const lensY = useMotionValue(-280);
-  const smoothX = useSpring(lensX, { damping: 34, stiffness: 118, mass: 0.4 });
-  const smoothY = useSpring(lensY, { damping: 34, stiffness: 118, mass: 0.4 });
+function DigitalInstallation() {
+  const lensX = useMotionValue(0);
+  const lensY = useMotionValue(0);
+  const depthX = useMotionValue(0);
+  const depthY = useMotionValue(0);
+  const smoothLensX = useSpring(lensX, { damping: 30, stiffness: 105, mass: 0.45 });
+  const smoothLensY = useSpring(lensY, { damping: 30, stiffness: 105, mass: 0.45 });
+  const smoothDepthX = useSpring(depthX, { damping: 36, stiffness: 95, mass: 0.55 });
+  const smoothDepthY = useSpring(depthY, { damping: 36, stiffness: 95, mass: 0.55 });
+
+  const mapX = useTransform(smoothDepthX, [-1, 1], [42, -42]);
+  const mapY = useTransform(smoothDepthY, [-1, 1], [26, -26]);
+  const mapRotate = useTransform(smoothDepthX, [-1, 1], [-2.5, 2.5]);
+  const slitX = useTransform(smoothDepthX, [-1, 1], [-84, 84]);
+  const slitY = useTransform(smoothDepthY, [-1, 1], [36, -36]);
+  const slitRotate = useTransform(smoothDepthX, [-1, 1], [-5, 5]);
+  const planeX = useTransform(smoothDepthX, [-1, 1], [-26, 26]);
+  const planeY = useTransform(smoothDepthY, [-1, 1], [-18, 18]);
+  const planeRotateY = useTransform(smoothDepthX, [-1, 1], [10, -10]);
+  const planeRotateX = useTransform(smoothDepthY, [-1, 1], [-8, 8]);
+  const lensBackground = useMotionTemplate`radial-gradient(circle at ${smoothLensX}px ${smoothLensY}px, rgb(255 255 255 / 0.48), rgb(226 214 194 / 0.16) 31%, transparent 66%)`;
 
   useEffect(() => {
-    const updateLens = (event: PointerEvent) => {
-      lensX.set(event.clientX - 280);
-      lensY.set(event.clientY - 280);
+    const centerField = () => {
+      lensX.set(window.innerWidth / 2);
+      lensY.set(window.innerHeight / 2);
+      depthX.set(0);
+      depthY.set(0);
     };
 
-    window.addEventListener('pointermove', updateLens, { passive: true });
-    return () => window.removeEventListener('pointermove', updateLens);
-  }, [lensX, lensY]);
+    const updateField = (event: PointerEvent) => {
+      const nextX = (event.clientX / window.innerWidth - 0.5) * 2;
+      const nextY = (event.clientY / window.innerHeight - 0.5) * 2;
+
+      lensX.set(event.clientX);
+      lensY.set(event.clientY);
+      depthX.set(Math.max(-1, Math.min(1, nextX)));
+      depthY.set(Math.max(-1, Math.min(1, nextY)));
+    };
+
+    centerField();
+    window.addEventListener('resize', centerField, { passive: true });
+    window.addEventListener('pointermove', updateField, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', centerField);
+      window.removeEventListener('pointermove', updateField);
+    };
+  }, [depthX, depthY, lensX, lensY]);
 
   return (
-    <div aria-hidden="true" className="quiet-atlas">
-      <div className="atlas-light" />
-      <div className="atlas-paper" />
-      <motion.div className="atlas-lens" style={{ x: smoothX, y: smoothY }} />
-      <div className="atlas-line-field">
-        {atlasMarks.map((mark) => (
-          <span
-            className="atlas-line"
-            key={`${mark.left}-${mark.top}`}
-            style={
-              {
-                '--atlas-delay': mark.delay,
-                '--atlas-length': mark.length,
-                '--atlas-rotate': mark.rotate,
-                left: mark.left,
-                top: mark.top,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </div>
+    <div aria-hidden="true" className="digital-installation">
+      <motion.div className="installation-fog installation-fog-back" />
+      <motion.div className="installation-fog installation-fog-near" />
+      <motion.div className="installation-grid" />
+      <motion.svg
+        className="installation-map"
+        fill="none"
+        preserveAspectRatio="none"
+        viewBox="0 0 1200 760"
+      >
+        <motion.g style={{ rotateZ: mapRotate, transformOrigin: 'center', x: mapX, y: mapY }}>
+          <path d="M58 172 C 244 98, 352 285, 512 226 S 790 38, 1120 124" />
+          <path d="M126 612 C 286 510, 360 692, 526 574 S 826 392, 1086 520" />
+          <path d="M272 118 L 454 286 L 702 236 L 934 390 L 1114 328" />
+          <path d="M156 356 L 390 404 L 556 318 L 822 462 L 1050 430" />
+          <circle cx="272" cy="118" r="5" />
+          <circle cx="454" cy="286" r="4" />
+          <circle cx="702" cy="236" r="5" />
+          <circle cx="934" cy="390" r="4" />
+          <circle cx="390" cy="404" r="4" />
+          <circle cx="822" cy="462" r="5" />
+        </motion.g>
+      </motion.svg>
+      <motion.div
+        className="installation-slit"
+        style={{ rotateZ: slitRotate, x: slitX, y: slitY }}
+      />
+      <motion.div
+        className="installation-planes"
+      >
+        <motion.span
+          className="installation-plane installation-plane-a"
+          style={{ rotateX: planeRotateX, rotateY: planeRotateY, x: planeX, y: planeY }}
+        />
+        <motion.span
+          className="installation-plane installation-plane-b"
+          style={{ rotateX: planeRotateX, rotateY: planeRotateY, x: planeX, y: planeY }}
+        />
+        <motion.span
+          className="installation-plane installation-plane-c"
+          style={{ rotateX: planeRotateX, rotateY: planeRotateY, x: planeX, y: planeY }}
+        />
+      </motion.div>
+      <motion.div className="installation-lens" style={{ background: lensBackground }} />
     </div>
   );
 }
@@ -151,6 +205,124 @@ function ParallaxFrame({ children }: { children: ReactNode }) {
   );
 }
 
+function useMagneticSurface<T extends HTMLElement>(strength = 18, tilt = 6) {
+  const ref = useRef<T>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const smoothX = useSpring(x, { damping: 20, stiffness: 170 });
+  const smoothY = useSpring(y, { damping: 20, stiffness: 170 });
+  const smoothRotateX = useSpring(rotateX, { damping: 22, stiffness: 150 });
+  const smoothRotateY = useSpring(rotateY, { damping: 22, stiffness: 150 });
+
+  function reset() {
+    x.set(0);
+    y.set(0);
+    rotateX.set(0);
+    rotateY.set(0);
+  }
+
+  function move(event: ReactPointerEvent<T>) {
+    const bounds = ref.current?.getBoundingClientRect();
+    if (!bounds) {
+      return;
+    }
+
+    const localX = (event.clientX - bounds.left) / bounds.width;
+    const localY = (event.clientY - bounds.top) / bounds.height;
+    const centeredX = localX - 0.5;
+    const centeredY = localY - 0.5;
+
+    ref.current?.style.setProperty('--spot-x', `${localX * 100}%`);
+    ref.current?.style.setProperty('--spot-y', `${localY * 100}%`);
+    x.set(centeredX * strength);
+    y.set(centeredY * strength);
+    rotateX.set(centeredY * -tilt);
+    rotateY.set(centeredX * tilt);
+  }
+
+  return {
+    onPointerLeave: reset,
+    onPointerMove: move,
+    ref,
+    style: {
+      rotateX: smoothRotateX,
+      rotateY: smoothRotateY,
+      transformPerspective: 1200,
+      x: smoothX,
+      y: smoothY,
+    },
+  };
+}
+
+function SpatialBlock({
+  children,
+  className,
+  strength = 12,
+  tilt = 4,
+}: {
+  children: ReactNode;
+  className: string;
+  strength?: number;
+  tilt?: number;
+}) {
+  const magnetic = useMagneticSurface<HTMLDivElement>(strength, tilt);
+
+  return (
+    <motion.div
+      className={`magnetic-surface spatial-copy ${className}`}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ scale: 1.006 }}
+      {...magnetic}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function SpatialFigure({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  const magnetic = useMagneticSurface<HTMLElement>(18, 5);
+
+  return (
+    <motion.figure
+      className={`magnetic-surface ${className}`}
+      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ scale: 1.012 }}
+      {...magnetic}
+    >
+      {children}
+    </motion.figure>
+  );
+}
+
+function MagneticArticle({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  const magnetic = useMagneticSurface<HTMLElement>(16, 4.5);
+
+  return (
+    <motion.article
+      className={`magnetic-surface ${className}`}
+      transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ scale: 1.012 }}
+      {...magnetic}
+    >
+      {children}
+    </motion.article>
+  );
+}
+
 function EditorialImage({
   alt,
   className,
@@ -185,32 +357,14 @@ function MagneticAnchor({
   className: string;
   href: string;
 }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const smoothX = useSpring(x, { damping: 18, stiffness: 180 });
-  const smoothY = useSpring(y, { damping: 18, stiffness: 180 });
+  const magnetic = useMagneticSurface<HTMLAnchorElement>(12, 3.5);
 
   return (
     <motion.a
-      className={className}
+      className={`magnetic-surface magnetic-link ${className}`}
       href={href}
-      onMouseLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-      onMouseMove={(event) => {
-        const bounds = ref.current?.getBoundingClientRect();
-        if (!bounds) {
-          return;
-        }
-
-        x.set((event.clientX - bounds.left - bounds.width / 2) * 0.12);
-        y.set((event.clientY - bounds.top - bounds.height / 2) * 0.18);
-      }}
-      ref={ref}
       rel="noreferrer"
-      style={{ x: smoothX, y: smoothY }}
+      {...magnetic}
       target="_blank"
       whileHover={{ scale: 1.015 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -226,11 +380,11 @@ export function HomePage() {
   return (
     <PageFrame>
       <ExhibitionEntrance />
-      <QuietAtlasEnvironment />
+      <DigitalInstallation />
       <ScrollTrace />
       <section className="exhibition-room cover-room grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
         <Reveal>
-          <div className="identity-wall max-w-4xl">
+          <SpatialBlock className="identity-wall max-w-4xl">
             <p className="mb-8 text-[0.72rem] uppercase tracking-[0.2em] text-deepBlack/55 dark:text-warmWhite/55">
               {text(profile.hero.eyebrow, language)}
             </p>
@@ -246,18 +400,18 @@ export function HomePage() {
             <p className="mt-4 max-w-2xl font-serif text-2xl leading-[1.35] text-deepBlack/55 dark:text-warmWhite/55 md:text-3xl">
               {text(profile.hero.line, language)}
             </p>
-          </div>
+          </SpatialBlock>
         </Reveal>
 
         <Reveal delay={0.12}>
-          <figure className="hero-artifact ml-auto w-full max-w-[560px]">
+          <SpatialFigure className="hero-artifact ml-auto w-full max-w-[560px]">
             <EditorialImage
               alt={profile.hero.image.alt}
               className="aspect-[4/5] max-h-[72vh] w-full"
               priority
               src={profile.hero.image.src}
             />
-          </figure>
+          </SpatialFigure>
         </Reveal>
       </section>
 
@@ -284,7 +438,7 @@ export function HomePage() {
         <div className="grid gap-12 lg:grid-cols-3">
           {profile.selectedWork.map((work, index) => (
             <Reveal delay={index * 0.08} key={work.title.en}>
-              <article className="artifact-card group">
+              <MagneticArticle className="artifact-card group">
                 <EditorialImage
                   alt={work.image.alt}
                   className="aspect-[5/6] w-full"
@@ -296,7 +450,7 @@ export function HomePage() {
                     {text(work.description, language)}
                   </p>
                 </div>
-              </article>
+              </MagneticArticle>
             </Reveal>
           ))}
         </div>
@@ -368,7 +522,7 @@ export function HomePage() {
             const Icon = item.icon;
             return (
               <Reveal delay={index * 0.04} key={item.label.en}>
-                <article className="life-fragment relative overflow-hidden">
+                <MagneticArticle className="life-fragment relative overflow-hidden">
                   <Image
                     alt=""
                     className="aspect-[4/5] w-full object-cover opacity-80 grayscale-[18%] transition duration-[1200ms] ease-editorial hover:opacity-100 hover:grayscale-0"
@@ -380,7 +534,7 @@ export function HomePage() {
                     <span className="font-serif text-2xl">{text(item.label, language)}</span>
                     <Icon size={18} strokeWidth={1.4} />
                   </div>
-                </article>
+                </MagneticArticle>
               </Reveal>
             );
           })}
