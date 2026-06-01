@@ -58,6 +58,10 @@ export const profile = {
       src: '/magazine-cover.jpg',
       alt: 'Editorial photograph of a quiet interior with linen, camera, notebook, and sea light',
     },
+    cinematicImage: {
+      src: '/cinematic-creator.jpg',
+      alt: 'Cinematic dark studio scene with a floating creator figure, papers, camera, and soft fabric',
+    },
   },
   manifesto: [
     {

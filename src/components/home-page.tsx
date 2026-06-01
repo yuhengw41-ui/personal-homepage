@@ -235,7 +235,7 @@ function CinematicHeroBackdrop({ language }: { language: ReturnType<typeof useLa
             className="h-full w-full object-cover"
             height={1200}
             priority
-            src={sitePath(profile.hero.image.src)}
+            src={sitePath(profile.hero.cinematicImage.src)}
             width={2000}
           />
         </motion.div>
@@ -267,6 +267,19 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
       variants={fadeUp}
       viewport={{ once: true, margin: '-80px' }}
       whileInView="visible"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function HeroReveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+  return (
+    <motion.div
+      animate="visible"
+      initial="hidden"
+      transition={{ duration: 1, delay, ease: [0.22, 1, 0.36, 1] }}
+      variants={fadeUp}
     >
       {children}
     </motion.div>
@@ -470,7 +483,7 @@ export function HomePage() {
       <ScrollTrace />
       <section className="exhibition-room cover-room grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
         <CinematicHeroBackdrop language={language} />
-        <Reveal>
+        <HeroReveal>
           <SpatialBlock className="identity-wall max-w-4xl">
             <p className="mb-8 text-[0.72rem] uppercase tracking-[0.2em] text-deepBlack/55 dark:text-warmWhite/55">
               {text(profile.hero.eyebrow, language)}
@@ -488,9 +501,9 @@ export function HomePage() {
               {text(profile.hero.line, language)}
             </p>
           </SpatialBlock>
-        </Reveal>
+        </HeroReveal>
 
-        <Reveal delay={0.12}>
+        <HeroReveal delay={0.12}>
           <SpatialFigure className="hero-artifact ml-auto w-full max-w-[560px]">
             <EditorialImage
               alt={profile.hero.image.alt}
@@ -499,7 +512,7 @@ export function HomePage() {
               src={profile.hero.image.src}
             />
           </SpatialFigure>
-        </Reveal>
+        </HeroReveal>
       </section>
 
       <section className="exhibition-room manifesto-room grid gap-10 py-28 md:grid-cols-[0.28fr_1fr]" id="manifesto">
