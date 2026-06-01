@@ -20,19 +20,13 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 },
 };
 
-const particleSeeds = [
-  { left: '7%', top: '14%', delay: '-2s', duration: '22s' },
-  { left: '18%', top: '72%', delay: '-11s', duration: '28s' },
-  { left: '31%', top: '34%', delay: '-7s', duration: '24s' },
-  { left: '44%', top: '86%', delay: '-16s', duration: '30s' },
-  { left: '58%', top: '18%', delay: '-9s', duration: '26s' },
-  { left: '69%', top: '62%', delay: '-19s', duration: '32s' },
-  { left: '82%', top: '28%', delay: '-5s', duration: '25s' },
-  { left: '91%', top: '78%', delay: '-13s', duration: '29s' },
-  { left: '24%', top: '8%', delay: '-20s', duration: '27s' },
-  { left: '73%', top: '91%', delay: '-3s', duration: '31s' },
-  { left: '11%', top: '49%', delay: '-15s', duration: '23s' },
-  { left: '52%', top: '45%', delay: '-1s', duration: '34s' },
+const atlasMarks = [
+  { left: '11%', top: '18%', delay: '-3s', length: '94px', rotate: '18deg' },
+  { left: '28%', top: '72%', delay: '-11s', length: '132px', rotate: '-12deg' },
+  { left: '48%', top: '32%', delay: '-7s', length: '86px', rotate: '42deg' },
+  { left: '66%', top: '80%', delay: '-16s', length: '116px', rotate: '-28deg' },
+  { left: '84%', top: '22%', delay: '-9s', length: '104px', rotate: '9deg' },
+  { left: '74%', top: '56%', delay: '-19s', length: '148px', rotate: '61deg' },
 ];
 
 const sectionCopy = {
@@ -60,37 +54,39 @@ const sectionCopy = {
   contact: { en: 'Contact', zh: '联系' },
 };
 
-function HomeAtmosphere() {
-  const glowX = useMotionValue(-240);
-  const glowY = useMotionValue(-240);
-  const smoothX = useSpring(glowX, { damping: 32, stiffness: 120, mass: 0.35 });
-  const smoothY = useSpring(glowY, { damping: 32, stiffness: 120, mass: 0.35 });
+function QuietAtlasEnvironment() {
+  const lensX = useMotionValue(-280);
+  const lensY = useMotionValue(-280);
+  const smoothX = useSpring(lensX, { damping: 34, stiffness: 118, mass: 0.4 });
+  const smoothY = useSpring(lensY, { damping: 34, stiffness: 118, mass: 0.4 });
 
   useEffect(() => {
-    const updateGlow = (event: PointerEvent) => {
-      glowX.set(event.clientX - 240);
-      glowY.set(event.clientY - 240);
+    const updateLens = (event: PointerEvent) => {
+      lensX.set(event.clientX - 280);
+      lensY.set(event.clientY - 280);
     };
 
-    window.addEventListener('pointermove', updateGlow, { passive: true });
-    return () => window.removeEventListener('pointermove', updateGlow);
-  }, [glowX, glowY]);
+    window.addEventListener('pointermove', updateLens, { passive: true });
+    return () => window.removeEventListener('pointermove', updateLens);
+  }, [lensX, lensY]);
 
   return (
-    <div aria-hidden="true" className="home-atmosphere">
-      <motion.div className="home-cursor-glow" style={{ x: smoothX, y: smoothY }} />
-      <div className="home-gradient-field" />
-      <div className="home-particle-field">
-        {particleSeeds.map((particle) => (
+    <div aria-hidden="true" className="quiet-atlas">
+      <div className="atlas-light" />
+      <div className="atlas-paper" />
+      <motion.div className="atlas-lens" style={{ x: smoothX, y: smoothY }} />
+      <div className="atlas-line-field">
+        {atlasMarks.map((mark) => (
           <span
-            className="home-particle"
-            key={`${particle.left}-${particle.top}`}
+            className="atlas-line"
+            key={`${mark.left}-${mark.top}`}
             style={
               {
-                '--particle-delay': particle.delay,
-                '--particle-duration': particle.duration,
-                left: particle.left,
-                top: particle.top,
+                '--atlas-delay': mark.delay,
+                '--atlas-length': mark.length,
+                '--atlas-rotate': mark.rotate,
+                left: mark.left,
+                top: mark.top,
               } as CSSProperties
             }
           />
@@ -100,15 +96,26 @@ function HomeAtmosphere() {
   );
 }
 
-function PageEntrance() {
+function ExhibitionEntrance() {
   return (
     <motion.div
       aria-hidden="true"
-      className="home-entrance"
+      className="exhibition-entrance"
       initial={{ opacity: 1, y: 0 }}
       animate={{ opacity: 0, y: '-100%' }}
-      transition={{ delay: 0.15, duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
+      transition={{ delay: 0.12, duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
     />
+  );
+}
+
+function ScrollTrace() {
+  const { scrollYProgress } = useScroll();
+  const scaleY = useSpring(scrollYProgress, { damping: 30, stiffness: 120 });
+
+  return (
+    <div aria-hidden="true" className="scroll-trace">
+      <motion.span style={{ scaleY }} />
+    </div>
   );
 }
 
@@ -116,7 +123,7 @@ function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }
   return (
     <motion.div
       initial="hidden"
-      transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 1, delay, ease: [0.22, 1, 0.36, 1] }}
       variants={fadeUp}
       viewport={{ once: true, margin: '-80px' }}
       whileInView="visible"
@@ -132,11 +139,12 @@ function ParallaxFrame({ children }: { children: ReactNode }) {
     target: ref,
     offset: ['start end', 'end start'],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [-18, 18]);
+  const y = useTransform(scrollYProgress, [0, 1], [-24, 24]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.025, 1, 1.025]);
 
   return (
-    <div className="editorial-media-shell" ref={ref}>
-      <motion.div className="h-full" style={{ y }}>
+    <div className="artifact-media" ref={ref}>
+      <motion.div className="h-full" style={{ scale, y }}>
         {children}
       </motion.div>
     </div>
@@ -217,11 +225,12 @@ export function HomePage() {
 
   return (
     <PageFrame>
-      <PageEntrance />
-      <HomeAtmosphere />
-      <section className="home-panel grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
+      <ExhibitionEntrance />
+      <QuietAtlasEnvironment />
+      <ScrollTrace />
+      <section className="exhibition-room cover-room grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
         <Reveal>
-          <div className="max-w-4xl">
+          <div className="identity-wall max-w-4xl">
             <p className="mb-8 text-[0.72rem] uppercase tracking-[0.2em] text-deepBlack/55 dark:text-warmWhite/55">
               {text(profile.hero.eyebrow, language)}
             </p>
@@ -241,7 +250,7 @@ export function HomePage() {
         </Reveal>
 
         <Reveal delay={0.12}>
-          <figure className="ml-auto w-full max-w-[560px]">
+          <figure className="hero-artifact ml-auto w-full max-w-[560px]">
             <EditorialImage
               alt={profile.hero.image.alt}
               className="aspect-[4/5] max-h-[72vh] w-full"
@@ -252,12 +261,12 @@ export function HomePage() {
         </Reveal>
       </section>
 
-      <section className="home-panel grid gap-10 py-28 md:grid-cols-[0.28fr_1fr]" id="manifesto">
+      <section className="exhibition-room manifesto-room grid gap-10 py-28 md:grid-cols-[0.28fr_1fr]" id="manifesto">
         <SectionLabel>{text(sectionCopy.manifesto, language)}</SectionLabel>
         <div className="space-y-10">
           {profile.manifesto.map((line, index) => (
             <Reveal delay={index * 0.06} key={line.en}>
-              <p className="max-w-5xl font-serif text-[clamp(2.4rem,7vw,7rem)] leading-[0.98]">
+              <p className="manifesto-line max-w-5xl font-serif text-[clamp(2.4rem,7vw,7rem)] leading-[0.98]">
                 {text(line, language)}
               </p>
             </Reveal>
@@ -265,7 +274,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-panel border-t border-deepBlack py-28 dark:border-warmWhite" id="work">
+      <section className="exhibition-room artifact-room border-t border-deepBlack py-28 dark:border-warmWhite" id="work">
         <div className="mb-16 grid gap-8 md:grid-cols-[0.28fr_1fr]">
           <SectionLabel>{text(sectionCopy.work, language)}</SectionLabel>
           <h2 className="max-w-4xl font-serif text-[clamp(2.7rem,7vw,7rem)] font-normal leading-none">
@@ -275,7 +284,7 @@ export function HomePage() {
         <div className="grid gap-12 lg:grid-cols-3">
           {profile.selectedWork.map((work, index) => (
             <Reveal delay={index * 0.08} key={work.title.en}>
-              <article className="home-glass-surface group">
+              <article className="artifact-card group">
                 <EditorialImage
                   alt={work.image.alt}
                   className="aspect-[5/6] w-full"
@@ -293,7 +302,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-panel border-t border-deepBlack py-28 dark:border-warmWhite" id="photography">
+      <section className="exhibition-room field-room border-t border-deepBlack py-28 dark:border-warmWhite" id="photography">
         <div className="mb-16 grid gap-8 md:grid-cols-[0.28fr_1fr]">
           <SectionLabel>{text(sectionCopy.photography, language)}</SectionLabel>
           <h2 className="max-w-4xl font-serif text-[clamp(2.7rem,7vw,7rem)] font-normal leading-none">
@@ -324,7 +333,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-panel grid gap-12 border-t border-deepBlack py-28 dark:border-warmWhite lg:grid-cols-2" id="notes">
+      <section className="exhibition-room notes-room grid gap-12 border-t border-deepBlack py-28 dark:border-warmWhite lg:grid-cols-2" id="notes">
         <div>
           <SectionLabel>{text(sectionCopy.notes, language)}</SectionLabel>
           <h2 className="mt-8 max-w-xl font-serif text-[clamp(3rem,8vw,8rem)] font-normal leading-none">
@@ -334,7 +343,7 @@ export function HomePage() {
         <div className="border-t border-deepBlack/20 dark:border-warmWhite/20">
           {profile.notes.map((note) => (
             <Reveal key={note.title.en}>
-              <article className="grid gap-5 border-b border-deepBlack/20 py-8 dark:border-warmWhite/20 md:grid-cols-[0.25fr_1fr]">
+              <article className="note-index grid gap-5 border-b border-deepBlack/20 py-8 dark:border-warmWhite/20 md:grid-cols-[0.25fr_1fr]">
                 <p className="text-[0.7rem] uppercase tracking-[0.16em] text-deepBlack/45 dark:text-warmWhite/45">
                   {text(note.theme, language)}
                 </p>
@@ -347,7 +356,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-panel border-t border-deepBlack py-28 dark:border-warmWhite">
+      <section className="exhibition-room life-room border-t border-deepBlack py-28 dark:border-warmWhite">
         <div className="mb-16 grid gap-8 md:grid-cols-[0.28fr_1fr]">
           <SectionLabel>{text(sectionCopy.life, language)}</SectionLabel>
           <h2 className="max-w-4xl font-serif text-[clamp(2.7rem,7vw,7rem)] font-normal leading-none">
@@ -359,7 +368,7 @@ export function HomePage() {
             const Icon = item.icon;
             return (
               <Reveal delay={index * 0.04} key={item.label.en}>
-                <article className="home-glass-surface relative overflow-hidden">
+                <article className="life-fragment relative overflow-hidden">
                   <Image
                     alt=""
                     className="aspect-[4/5] w-full object-cover opacity-80 grayscale-[18%] transition duration-[1200ms] ease-editorial hover:opacity-100 hover:grayscale-0"
@@ -378,7 +387,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-panel border-t border-deepBlack py-28 dark:border-warmWhite" id="contact">
+      <section className="exhibition-room contact-room border-t border-deepBlack py-28 dark:border-warmWhite" id="contact">
         <div className="grid gap-10 md:grid-cols-[0.28fr_1fr]">
           <SectionLabel>{text(sectionCopy.contact, language)}</SectionLabel>
           <div>
