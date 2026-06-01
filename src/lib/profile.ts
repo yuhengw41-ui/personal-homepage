@@ -55,8 +55,8 @@ export const profile = {
       zh: '创造产品、故事与有温度的体验。',
     },
     image: {
-      src: '/rory-portrait.jpg',
-      alt: 'Portrait of 王俞蘅 / Rory syhran in warm cinematic light',
+      src: '/magazine-cover.jpg',
+      alt: 'Editorial photograph of a quiet interior with linen, camera, notebook, and sea light',
     },
     cinematicImage: {
       src: '/cinematic-creator.jpg',
