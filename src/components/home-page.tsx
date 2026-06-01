@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
+import { sitePath } from '@/lib/paths';
 import { profile } from '@/lib/profile';
 import { text, useLanguage } from './language-toggle';
 import { PageFrame, SectionLabel } from './site-shell';
@@ -68,7 +69,7 @@ function EditorialImage({
       className={`object-cover grayscale-[10%] transition duration-[1200ms] ease-editorial hover:grayscale-0 ${className}`}
       height={1600}
       loading={priority ? 'eager' : 'lazy'}
-      src={src}
+      src={sitePath(src)}
       width={1200}
     />
   );
@@ -224,7 +225,7 @@ export function HomePage() {
                     alt=""
                     className="aspect-[4/5] w-full object-cover opacity-80 grayscale-[18%] transition duration-[1200ms] ease-editorial hover:opacity-100 hover:grayscale-0"
                     height={1200}
-                    src={item.image}
+                    src={sitePath(item.image)}
                     width={900}
                   />
                   <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-warmWhite/82 p-5 text-deepBlack backdrop-blur-md dark:bg-deepBlack/72 dark:text-warmWhite">
