@@ -173,6 +173,92 @@ function ScrollTrace() {
   );
 }
 
+function CinematicHeroBackdrop({ language }: { language: ReturnType<typeof useLanguage>['language'] }) {
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const smoothX = useSpring(pointerX, { damping: 34, stiffness: 92, mass: 0.5 });
+  const smoothY = useSpring(pointerY, { damping: 34, stiffness: 92, mass: 0.5 });
+  const portalX = useTransform(smoothX, [-1, 1], [-22, 22]);
+  const portalY = useTransform(smoothY, [-1, 1], [-15, 15]);
+  const portalRotateX = useTransform(smoothY, [-1, 1], [3, -3]);
+  const portalRotateY = useTransform(smoothX, [-1, 1], [-4, 4]);
+  const imageX = useTransform(smoothX, [-1, 1], [20, -20]);
+  const imageY = useTransform(smoothY, [-1, 1], [13, -13]);
+  const shardX = useTransform(smoothX, [-1, 1], [-34, 34]);
+  const shardY = useTransform(smoothY, [-1, 1], [18, -18]);
+  const haloX = useTransform(smoothX, [-1, 1], [38, -38]);
+  const haloY = useTransform(smoothY, [-1, 1], [24, -24]);
+
+  useEffect(() => {
+    const reset = () => {
+      pointerX.set(0);
+      pointerY.set(0);
+    };
+
+    const move = (event: PointerEvent) => {
+      pointerX.set((event.clientX / window.innerWidth - 0.5) * 2);
+      pointerY.set((event.clientY / window.innerHeight - 0.5) * 2);
+    };
+
+    reset();
+    window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('resize', reset, { passive: true });
+
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('resize', reset);
+    };
+  }, [pointerX, pointerY]);
+
+  const indexItems = [
+    text(profile.hero.eyebrow, language),
+    text(profile.hero.subtitle, language),
+    text(profile.selectedWork[2].title, language),
+    text(profile.life[0].label, language),
+  ];
+
+  return (
+    <div aria-hidden="true" className="cinematic-hero-backdrop">
+      <motion.div className="cinematic-hero-halo" style={{ x: haloX, y: haloY }} />
+      <motion.div
+        className="cinematic-hero-portal"
+        style={{
+          rotateX: portalRotateX,
+          rotateY: portalRotateY,
+          x: portalX,
+          y: portalY,
+        }}
+      >
+        <motion.div className="cinematic-hero-image" style={{ x: imageX, y: imageY }}>
+          <Image
+            alt=""
+            className="h-full w-full object-cover"
+            height={1200}
+            priority
+            src={sitePath(profile.hero.image.src)}
+            width={2000}
+          />
+        </motion.div>
+        <span className="cinematic-glass-edge cinematic-glass-edge-top" />
+        <span className="cinematic-glass-edge cinematic-glass-edge-bottom" />
+      </motion.div>
+      <motion.span className="cinematic-shard cinematic-shard-a" style={{ x: shardX, y: shardY }} />
+      <motion.span className="cinematic-shard cinematic-shard-b" style={{ x: haloX, y: shardY }} />
+      <div className="cinematic-hero-index">
+        {indexItems.map((item, index) => (
+          <span key={`${item}-${index}`}>
+            {String(index + 1).padStart(2, '0')} / {item}
+          </span>
+        ))}
+      </div>
+      <div className="cinematic-hero-chapter">
+        <span>{text(profile.name, language)}</span>
+        <span>{text(profile.hero.line, language)}</span>
+      </div>
+    </div>
+  );
+}
+
 function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   return (
     <motion.div
@@ -383,6 +469,7 @@ export function HomePage() {
       <DigitalInstallation />
       <ScrollTrace />
       <section className="exhibition-room cover-room grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
+        <CinematicHeroBackdrop language={language} />
         <Reveal>
           <SpatialBlock className="identity-wall max-w-4xl">
             <p className="mb-8 text-[0.72rem] uppercase tracking-[0.2em] text-deepBlack/55 dark:text-warmWhite/55">
