@@ -35,7 +35,7 @@ export const profile = {
     title: 'Rory syhran | Personal Brand',
     description:
       'The personal brand website of 王俞蘅 / Rory syhran: creator, builder, storyteller.',
-    url: 'https://example.com',
+    url: 'https://yuhengw41-ui.github.io/personal-homepage',
   },
   name: {
     zh: '王俞蘅',
@@ -55,8 +55,8 @@ export const profile = {
       zh: '创造产品、故事与有温度的体验。',
     },
     image: {
-      src: '/magazine-cover.jpg',
-      alt: 'Editorial photograph of a quiet interior with linen, camera, notebook, and sea light',
+      src: '/rory-portrait.jpg',
+      alt: 'Portrait of 王俞蘅 / Rory syhran in warm cinematic light',
     },
     cinematicImage: {
       src: '/cinematic-creator.jpg',
