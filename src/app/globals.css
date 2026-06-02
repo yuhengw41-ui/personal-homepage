@@ -298,6 +298,8 @@ img {
   position: relative;
   z-index: 1;
   isolation: isolate;
+  padding-left: clamp(1.25rem, 4vw, 4.5rem);
+  padding-right: clamp(1.25rem, 4vw, 4.5rem);
 }
 
 .cover-room {
@@ -781,6 +783,11 @@ img {
 @media (max-width: 760px) {
   .scroll-trace {
     display: none;
+  }
+
+  .exhibition-room {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .digital-installation {

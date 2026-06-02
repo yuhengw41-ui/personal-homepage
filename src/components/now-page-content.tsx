@@ -26,7 +26,7 @@ export function NowPageContent() {
 
   return (
     <PageFrame>
-      <section className="min-h-[calc(100vh-4rem)] border-b border-deepBlack pb-16 pt-20 dark:border-warmWhite">
+      <section className="min-h-[calc(100vh-4rem)] border-b border-deepBlack px-[clamp(1.25rem,4vw,4.5rem)] pb-16 pt-20 dark:border-warmWhite">
         <Link
           className="mb-16 inline-flex items-center gap-3 text-[0.72rem] uppercase tracking-[0.16em] text-deepBlack/55 transition-colors hover:text-deepBlack dark:text-warmWhite/55 dark:hover:text-warmWhite"
           href="/"
@@ -40,7 +40,7 @@ export function NowPageContent() {
         </h1>
       </section>
 
-      <section className="py-20">
+      <section className="px-[clamp(1.25rem,4vw,4.5rem)] py-20">
         <div className="border-t border-deepBlack/20 dark:border-warmWhite/20">
           {nowItems.map(([label, value]) => (
             <article

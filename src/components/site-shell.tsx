@@ -17,7 +17,7 @@ export function Header() {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-deepBlack/10 bg-warmWhite/80 backdrop-blur-xl dark:border-warmWhite/10 dark:bg-deepBlack/70">
-      <div className="mx-auto flex h-16 w-[calc(100%_-_32px)] max-w-[1280px] items-center justify-between">
+      <div className="flex h-16 w-full items-center justify-between px-[clamp(1.25rem,4vw,4.5rem)]">
         <Link className="font-serif text-lg tracking-[0.08em]" href="/">
           Rory syhran
         </Link>
@@ -53,7 +53,7 @@ export function PageFrame({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <main className="mx-auto w-[calc(100%_-_32px)] max-w-[1280px] pt-16">{children}</main>
+      <main className="w-full pt-16">{children}</main>
     </>
   );
 }
