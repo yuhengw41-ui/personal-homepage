@@ -8,7 +8,6 @@ import {
 } from 'react';
 import {
   motion,
-  useMotionTemplate,
   useMotionValue,
   useScroll,
   useSpring,
@@ -52,43 +51,45 @@ const sectionCopy = {
 };
 
 function DigitalInstallation() {
-  const lensX = useMotionValue(0);
-  const lensY = useMotionValue(0);
   const depthX = useMotionValue(0);
   const depthY = useMotionValue(0);
-  const smoothLensX = useSpring(lensX, { damping: 30, stiffness: 105, mass: 0.45 });
-  const smoothLensY = useSpring(lensY, { damping: 30, stiffness: 105, mass: 0.45 });
-  const smoothDepthX = useSpring(depthX, { damping: 36, stiffness: 95, mass: 0.55 });
-  const smoothDepthY = useSpring(depthY, { damping: 36, stiffness: 95, mass: 0.55 });
+  const smoothDepthX = useSpring(depthX, { damping: 48, stiffness: 78, mass: 0.85 });
+  const smoothDepthY = useSpring(depthY, { damping: 48, stiffness: 78, mass: 0.85 });
 
-  const mapX = useTransform(smoothDepthX, [-1, 1], [42, -42]);
-  const mapY = useTransform(smoothDepthY, [-1, 1], [26, -26]);
-  const mapRotate = useTransform(smoothDepthX, [-1, 1], [-2.5, 2.5]);
-  const slitX = useTransform(smoothDepthX, [-1, 1], [-84, 84]);
-  const slitY = useTransform(smoothDepthY, [-1, 1], [36, -36]);
-  const slitRotate = useTransform(smoothDepthX, [-1, 1], [-5, 5]);
-  const planeX = useTransform(smoothDepthX, [-1, 1], [-26, 26]);
-  const planeY = useTransform(smoothDepthY, [-1, 1], [-18, 18]);
-  const planeRotateY = useTransform(smoothDepthX, [-1, 1], [10, -10]);
-  const planeRotateX = useTransform(smoothDepthY, [-1, 1], [-8, 8]);
-  const lensBackground = useMotionTemplate`radial-gradient(circle at ${smoothLensX}px ${smoothLensY}px, rgb(255 255 255 / 0.48), rgb(226 214 194 / 0.16) 31%, transparent 66%)`;
+  const mapX = useTransform(smoothDepthX, [-1, 1], [20, -20]);
+  const mapY = useTransform(smoothDepthY, [-1, 1], [12, -12]);
+  const mapRotate = useTransform(smoothDepthX, [-1, 1], [-1.1, 1.1]);
+  const slitX = useTransform(smoothDepthX, [-1, 1], [-28, 28]);
+  const slitY = useTransform(smoothDepthY, [-1, 1], [12, -12]);
+  const slitRotate = useTransform(smoothDepthX, [-1, 1], [-1.8, 1.8]);
+  const planeX = useTransform(smoothDepthX, [-1, 1], [-10, 10]);
+  const planeY = useTransform(smoothDepthY, [-1, 1], [-7, 7]);
+  const planeRotateY = useTransform(smoothDepthX, [-1, 1], [4, -4]);
+  const planeRotateX = useTransform(smoothDepthY, [-1, 1], [-3, 3]);
+  const lensX = useTransform(smoothDepthX, [-1, 1], [-42, 42]);
+  const lensY = useTransform(smoothDepthY, [-1, 1], [-24, 24]);
 
   useEffect(() => {
+    let frame = 0;
+    let nextX = 0;
+    let nextY = 0;
+
     const centerField = () => {
-      lensX.set(window.innerWidth / 2);
-      lensY.set(window.innerHeight / 2);
       depthX.set(0);
       depthY.set(0);
     };
 
     const updateField = (event: PointerEvent) => {
-      const nextX = (event.clientX / window.innerWidth - 0.5) * 2;
-      const nextY = (event.clientY / window.innerHeight - 0.5) * 2;
+      nextX = Math.max(-1, Math.min(1, (event.clientX / window.innerWidth - 0.5) * 2));
+      nextY = Math.max(-1, Math.min(1, (event.clientY / window.innerHeight - 0.5) * 2));
 
-      lensX.set(event.clientX);
-      lensY.set(event.clientY);
-      depthX.set(Math.max(-1, Math.min(1, nextX)));
-      depthY.set(Math.max(-1, Math.min(1, nextY)));
+      if (frame) return;
+
+      frame = window.requestAnimationFrame(() => {
+        depthX.set(nextX);
+        depthY.set(nextY);
+        frame = 0;
+      });
     };
 
     centerField();
@@ -96,10 +97,11 @@ function DigitalInstallation() {
     window.addEventListener('pointermove', updateField, { passive: true });
 
     return () => {
+      if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener('resize', centerField);
       window.removeEventListener('pointermove', updateField);
     };
-  }, [depthX, depthY, lensX, lensY]);
+  }, [depthX, depthY]);
 
   return (
     <div aria-hidden="true" className="digital-installation">
@@ -145,7 +147,7 @@ function DigitalInstallation() {
           style={{ rotateX: planeRotateX, rotateY: planeRotateY, x: planeX, y: planeY }}
         />
       </motion.div>
-      <motion.div className="installation-lens" style={{ background: lensBackground }} />
+      <motion.div className="installation-lens" style={{ x: lensX, y: lensY }} />
     </div>
   );
 }
@@ -176,28 +178,40 @@ function ScrollTrace() {
 function CinematicHeroBackdrop({ language }: { language: ReturnType<typeof useLanguage>['language'] }) {
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
-  const smoothX = useSpring(pointerX, { damping: 34, stiffness: 92, mass: 0.5 });
-  const smoothY = useSpring(pointerY, { damping: 34, stiffness: 92, mass: 0.5 });
-  const portalX = useTransform(smoothX, [-1, 1], [-22, 22]);
-  const portalY = useTransform(smoothY, [-1, 1], [-15, 15]);
-  const portalRotateX = useTransform(smoothY, [-1, 1], [3, -3]);
-  const portalRotateY = useTransform(smoothX, [-1, 1], [-4, 4]);
-  const imageX = useTransform(smoothX, [-1, 1], [20, -20]);
-  const imageY = useTransform(smoothY, [-1, 1], [13, -13]);
-  const shardX = useTransform(smoothX, [-1, 1], [-34, 34]);
-  const shardY = useTransform(smoothY, [-1, 1], [18, -18]);
-  const haloX = useTransform(smoothX, [-1, 1], [38, -38]);
-  const haloY = useTransform(smoothY, [-1, 1], [24, -24]);
+  const smoothX = useSpring(pointerX, { damping: 52, stiffness: 72, mass: 0.9 });
+  const smoothY = useSpring(pointerY, { damping: 52, stiffness: 72, mass: 0.9 });
+  const portalX = useTransform(smoothX, [-1, 1], [-10, 10]);
+  const portalY = useTransform(smoothY, [-1, 1], [-7, 7]);
+  const portalRotateX = useTransform(smoothY, [-1, 1], [1.2, -1.2]);
+  const portalRotateY = useTransform(smoothX, [-1, 1], [-1.6, 1.6]);
+  const imageX = useTransform(smoothX, [-1, 1], [7, -7]);
+  const imageY = useTransform(smoothY, [-1, 1], [5, -5]);
+  const shardX = useTransform(smoothX, [-1, 1], [-12, 12]);
+  const shardY = useTransform(smoothY, [-1, 1], [8, -8]);
+  const haloX = useTransform(smoothX, [-1, 1], [14, -14]);
+  const haloY = useTransform(smoothY, [-1, 1], [9, -9]);
 
   useEffect(() => {
+    let frame = 0;
+    let nextX = 0;
+    let nextY = 0;
+
     const reset = () => {
       pointerX.set(0);
       pointerY.set(0);
     };
 
     const move = (event: PointerEvent) => {
-      pointerX.set((event.clientX / window.innerWidth - 0.5) * 2);
-      pointerY.set((event.clientY / window.innerHeight - 0.5) * 2);
+      nextX = (event.clientX / window.innerWidth - 0.5) * 2;
+      nextY = (event.clientY / window.innerHeight - 0.5) * 2;
+
+      if (frame) return;
+
+      frame = window.requestAnimationFrame(() => {
+        pointerX.set(nextX);
+        pointerY.set(nextY);
+        frame = 0;
+      });
     };
 
     reset();
@@ -205,6 +219,7 @@ function CinematicHeroBackdrop({ language }: { language: ReturnType<typeof useLa
     window.addEventListener('resize', reset, { passive: true });
 
     return () => {
+      if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('resize', reset);
     };
