@@ -481,7 +481,7 @@ export function HomePage() {
       <ExhibitionEntrance />
       <DigitalInstallation />
       <ScrollTrace />
-      <section className="exhibition-room cover-room grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:grid-cols-[1.08fr_0.92fr] lg:py-20">
+      <section className="exhibition-room cover-room grid min-h-[calc(100vh-4rem)] grid-cols-1 items-center gap-10 border-b border-deepBlack py-14 dark:border-warmWhite lg:py-20">
         <CinematicHeroBackdrop language={language} />
         <HeroReveal>
           <SpatialBlock className="identity-wall max-w-4xl">
@@ -501,17 +501,6 @@ export function HomePage() {
               {text(profile.hero.line, language)}
             </p>
           </SpatialBlock>
-        </HeroReveal>
-
-        <HeroReveal delay={0.12}>
-          <SpatialFigure className="hero-artifact ml-auto w-full max-w-[560px]">
-            <EditorialImage
-              alt={profile.hero.image.alt}
-              className="aspect-[4/5] max-h-[72vh] w-full"
-              priority
-              src={profile.hero.image.src}
-            />
-          </SpatialFigure>
         </HeroReveal>
       </section>
 
